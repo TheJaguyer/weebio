@@ -3,4 +3,6 @@
 here="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
 export SERVER_PATH="$here/lib/server.js"
 export GSETTINGS_SCHEMA_DIR="$here/share/glib-2.0/schemas"
+# GTK's default Vulkan renderer forces a GL->Vulkan copy of every video frame; GL is far cheaper on the Pi.
+export GSK_RENDERER="${GSK_RENDERER:-ngl}"
 exec "$here/bin/weebio-shell" --no-window-decorations "$@"
