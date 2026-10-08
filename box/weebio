@@ -5,4 +5,6 @@ export SERVER_PATH="$here/lib/server.js"
 export GSETTINGS_SCHEMA_DIR="$here/share/glib-2.0/schemas"
 # GTK's default Vulkan renderer forces a GL->Vulkan copy of every video frame; GL is far cheaper on the Pi.
 export GSK_RENDERER="${GSK_RENDERER:-ngl}"
+# GTK 4.18 leaks file descriptors exporting the video GLArea as dmabufs on the Pi; render it in-process instead.
+export GDK_DISABLE="${GDK_DISABLE:-dmabuf}"
 exec "$here/bin/weebio-shell" --no-window-decorations "$@"
