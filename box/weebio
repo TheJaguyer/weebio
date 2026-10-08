@@ -1,0 +1,6 @@
+#!/bin/sh
+# Launch the Weebio shell from an unpacked release bundle (resolves paths relative to this script).
+here="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
+export SERVER_PATH="$here/lib/server.js"
+export GSETTINGS_SCHEMA_DIR="$here/share/glib-2.0/schemas"
+exec "$here/bin/weebio-shell" --no-window-decorations "$@"
