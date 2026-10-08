@@ -1,0 +1,10 @@
+[submodule "upstream/stremio-web"]
+	path = upstream/stremio-web
+	url = https://github.com/TheJaguyer/stremio-web.git
+	shallow = true
+	branch = weebio
+[submodule "upstream/stremio-linux-shell"]
+	path = upstream/stremio-linux-shell
+	url = https://github.com/TheJaguyer/stremio-linux-shell.git
+	shallow = true
+	branch = weebio
