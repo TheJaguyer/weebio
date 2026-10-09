@@ -19,7 +19,9 @@ StandardError=journal
 UtmpIdentifier=tty1
 UtmpMode=user
 Environment=XDG_SESSION_TYPE=wayland
-ExecStart=/usr/bin/labwc -s /opt/weebio/current/bin/weebio-session
+# systemd hands User=+PAMName= sessions an ambient CAP_WAKE_ALARM; it would be inherited by WebKit's
+# bubblewrap sandbox, which then refuses to start ("Unexpected capabilities") and the UI stays black.
+ExecStart=/usr/bin/setpriv --inh-caps=-all --ambient-caps=-all /usr/bin/labwc -s /opt/weebio/current/bin/weebio-session
 Restart=always
 RestartSec=2
 

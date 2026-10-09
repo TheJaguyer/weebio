@@ -53,7 +53,7 @@ body {
     box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.5);
 }
 
-h1 { margin: 0; font-size: 1.5rem; font-weight: 600; }
+h1 { margin: 0; font-size: 1.5rem; font-weight: 600; overflow-wrap: anywhere; }
 .subtitle { margin: 0; opacity: 0.6; }
 
 .logo { width: 6rem; height: 6rem; }
@@ -89,17 +89,25 @@ button:focus, button:hover {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    overflow-x: hidden;
     overflow-y: auto;
-    padding: 0.3rem;
+    padding: 4px;
+    scrollbar-gutter: stable;   /* room for the scrollbar so it never overlaps the rows */
 }
+/* Rows fill the list exactly; growing on focus would spill past its edges. */
+.list button:focus, .list button:hover { transform: none; }
 .network {
     display: flex;
     align-items: center;
     gap: 1rem;
+    width: 100%;
+    min-width: 0;
     text-align: left;
 }
-.network .name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.network .tag { font-size: 0.75rem; opacity: 0.75; }
+/* min-width: 0 lets the name shrink below its text width so long SSIDs end in an ellipsis. */
+.network .name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.network .tag { font-size: 0.75rem; opacity: 0.75; flex-shrink: 0; }
+.network .bars, .network .lock { flex-shrink: 0; }
 
 .bars { display: inline-flex; align-items: flex-end; gap: 0.15rem; height: 1.1rem; }
 .bars i { width: 0.3rem; background: currentColor; opacity: 0.25; border-radius: 0.1rem; }
