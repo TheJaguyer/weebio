@@ -2,6 +2,8 @@ package main
 
 import (
 	"bufio"
+	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -47,8 +49,19 @@ func loadSecrets(path string) (map[string]string, error) {
 	return parseSecrets(f)
 }
 
-type Addon struct {
+// addonSpec is one entry of addons.json.
+type addonSpec struct {
 	URL string `json:"url"`
+	// Config is the addon's settings as readable JSON. It is rendered (placeholders filled), compacted,
+	// base64-encoded and substituted for "{config}" in URL: the form most configurable addons use.
+	Config json.RawMessage `json:"config,omitempty"`
+	// Remove names parts of the addon to strip ("catalogs", "search", "meta", ...); applied by the UI.
+	Remove []string `json:"remove,omitempty"`
+}
+
+type Addon struct {
+	URL    string   `json:"url"`
+	Remove []string `json:"remove,omitempty"`
 }
 
 type AddonList struct {
@@ -56,13 +69,38 @@ type AddonList struct {
 	Warnings []string `json:"warnings"`
 }
 
+// Placeholders: {{KEY}}, filled from the secrets file. Inside "config" they belong inside JSON strings.
 var placeholder = regexp.MustCompile(`\{\{\s*([A-Za-z0-9_]+)\s*\}\}`)
 
-// renderAddons substitutes {{KEY}} placeholders. An addon whose keys aren't all present is
-// left out with a warning rather than installed with a broken URL.
+// fill replaces placeholders in text, escaping values with escape and recording missing keys.
+func fill(text string, secrets map[string]string, escape func(string) string, missing *[]string) string {
+	return placeholder.ReplaceAllStringFunc(text, func(m string) string {
+		key := placeholder.FindStringSubmatch(m)[1]
+		v, ok := secrets[key]
+		if !ok {
+			*missing = append(*missing, key)
+		}
+		return escape(v)
+	})
+}
+
+// jsonStringContent escapes v for use inside a JSON string literal (without the quotes).
+func jsonStringContent(v string) string {
+	var buf bytes.Buffer
+	enc := json.NewEncoder(&buf)
+	enc.SetEscapeHTML(false) // match JavaScript's JSON.stringify, which addons' config pages use
+	_ = enc.Encode(v)
+	out := strings.TrimSuffix(buf.String(), "\n")
+	return out[1 : len(out)-1]
+}
+
+func identity(s string) string { return s }
+
+// renderAddons turns addons.json into installable URLs. An addon whose keys aren't all present in the
+// secrets file is left out with a warning rather than installed with a broken URL.
 func renderAddons(raw []byte, secrets map[string]string) (AddonList, error) {
 	var in struct {
-		Addons []Addon `json:"addons"`
+		Addons []addonSpec `json:"addons"`
 	}
 	if err := json.Unmarshal(raw, &in); err != nil {
 		return AddonList{}, fmt.Errorf("addons.json: %w", err)
@@ -70,19 +108,20 @@ func renderAddons(raw []byte, secrets map[string]string) (AddonList, error) {
 	out := AddonList{Addons: []Addon{}, Warnings: []string{}}
 	for _, a := range in.Addons {
 		var missing []string
-		url := placeholder.ReplaceAllStringFunc(a.URL, func(m string) string {
-			key := placeholder.FindStringSubmatch(m)[1]
-			v, ok := secrets[key]
-			if !ok {
-				missing = append(missing, key)
+		url := fill(a.URL, secrets, identity, &missing)
+		if len(a.Config) > 0 {
+			var compact bytes.Buffer
+			if err := json.Compact(&compact, []byte(fill(string(a.Config), secrets, jsonStringContent, &missing))); err != nil {
+				out.Warnings = append(out.Warnings, fmt.Sprintf("skipped %s: invalid config: %v", redact(a.URL), err))
+				continue
 			}
-			return v
-		})
+			url = strings.ReplaceAll(url, "{config}", base64.StdEncoding.EncodeToString(compact.Bytes()))
+		}
 		if len(missing) > 0 {
 			out.Warnings = append(out.Warnings, fmt.Sprintf("skipped %s: missing %s in secrets file", redact(a.URL), strings.Join(missing, ", ")))
 			continue
 		}
-		out.Addons = append(out.Addons, Addon{URL: url})
+		out.Addons = append(out.Addons, Addon{URL: url, Remove: a.Remove})
 	}
 	return out, nil
 }

@@ -60,10 +60,13 @@ API keys for addons go in the secrets file, never in the repo. Names must match 
 
 ```sh
 sudo tee /etc/weebio/secrets.env >/dev/null <<'EOF'
-RD_KEY=your-real-debrid-key
+DEBRIDIO_API_KEY=your-debridio-api-key
+TORBOX_API_KEY=your-torbox-api-key
 EOF
 sudo chmod 600 /etc/weebio/secrets.env
 ```
+
+(`box/secrets.env.example` lists every key the current `addons.json` uses.)
 
 An addon whose key is missing is skipped (not installed broken).
 

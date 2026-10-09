@@ -1,6 +1,53 @@
 {
-  "addons": [
-    { "url": "https://v3-cinemeta.strem.io/manifest.json" },
-    { "url": "https://torrentio.strem.fun/realdebrid={{RD_KEY}}/manifest.json" }
-  ]
+    "addons": [
+        {
+            "url": "https://addon.debridio.com/{config}/manifest.json",
+            "config": {
+                "api_key": "{{DEBRIDIO_API_KEY}}",
+                "provider": "torbox",
+                "providerKey": "{{TORBOX_API_KEY}}",
+                "disableUncached": true,
+                "maxSize": "",
+                "maxReturnPerQuality": 6,
+                "resolutions": ["4k", "1440p", "1080p", "720p", "unknown"],
+                "excludedQualities": ["TVRip", "R5", "PPVRip", "TeleCine", "TeleSync", "SCR", "CAM"],
+                "preferredLang": ["english"]
+            }
+        },
+        {
+            "url": "https://hive-addon.debridio.com/{config}/manifest.json",
+            "config": {
+                "api_key": "{{DEBRIDIO_API_KEY}}",
+                "poster_api": "",
+                "catalogs": ["trending", "popular"]
+            }
+        },
+        {
+            "url": "https://tmdb-addon.debridio.com/{config}/manifest.json",
+            "config": {
+                "api_key": "{{DEBRIDIO_API_KEY}}",
+                "language": "en-US",
+                "poster_api": ""
+            }
+        },
+        {
+            "url": "https://opensubtitlesv3-pro.dexter21767.com/{config}/manifest.json",
+            "config": {
+                "langs": ["english", "korean"],
+                "source": "all",
+                "aiTranslated": false,
+                "autoAdjustment": true
+            }
+        },
+        {
+            "url": "https://raw.githubusercontent.com/scampari/usa-tv-next/main/manifest.json"
+        },
+        {
+            "url": "http://127.0.0.1:11470/local-addon/manifest.json"
+        },
+        {
+            "url": "https://v3-cinemeta.strem.io/manifest.json",
+            "remove": ["catalogs", "search", "meta"]
+        }
+    ]
 }
