@@ -1,0 +1,16 @@
+/* Jotunheim: crimson and stone theme. Overrides the CSS variables stremio-web and the agent pages read. */
+:root[data-theme="jotunheim"] {
+    --primary-background-color: #110b0c;
+    --secondary-background-color: #2a1c1e;
+    --primary-foreground-color: rgba(255, 255, 255, 0.9);
+    --secondary-foreground-color: #110b0c;
+    --primary-accent-color: #c2394b;
+    --secondary-accent-color: #d9a441;
+    --tertiary-accent-color: #f2c14e;
+    --quaternary-accent-color: #3b6fb6;
+    --overlay-color: rgba(255, 255, 255, 0.05);
+    --modal-background-color: #1a1213;
+    --outer-glow: 0px 0px 15px rgba(194, 57, 75, 0.37);
+    --warning-accent-color: rgba(255, 165, 0, 1);
+    --danger-accent-color: rgba(220, 38, 38, 1);
+}

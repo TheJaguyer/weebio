@@ -1,7 +1,10 @@
 [
-    { "id": "saga",       "name": "Saga",       "description": "Gold leaf on midnight",   "swatch": ["#0b0d14", "#d4a64a"] },
-    { "id": "midgard",    "name": "Midgard",    "description": "Moss and amber",          "swatch": ["#16261b", "#7fb069"] },
-    { "id": "niflheim",   "name": "Niflheim",   "description": "Ice and mist",            "swatch": ["#13202b", "#6ec6e6"] },
-    { "id": "muspelheim", "name": "Muspelheim", "description": "Ember and ash",           "swatch": ["#2a1410", "#e8613c"] },
-    { "id": "alfheim",    "name": "Alfheim",    "description": "The classic violet",      "swatch": ["#1a173e", "#7b5bf5"] }
+    { "id": "saga",       "name": "Saga",       "description": "Gold leaf on midnight",            "swatch": ["#0b0d14", "#d4a64a"] },
+    { "id": "midgard",    "name": "Midgard",    "description": "Moss and amber",                   "swatch": ["#16261b", "#7fb069"] },
+    { "id": "vanaheim",   "name": "Vanaheim",   "description": "The sea of Njord",                 "swatch": ["#0e2a26", "#2bb3a3"] },
+    { "id": "alfheim",    "name": "Alfheim",    "description": "The classic violet",               "swatch": ["#1a173e", "#7b5bf5"] },
+    { "id": "niflheim",   "name": "Niflheim",   "description": "Ice and mist",                     "swatch": ["#13202b", "#6ec6e6"] },
+    { "id": "jotunheim",  "name": "Jotunheim",  "description": "Crimson and stone",                "swatch": ["#2a1c1e", "#c2394b"] },
+    { "id": "muspelheim", "name": "Muspelheim", "description": "Ember and ash",                    "swatch": ["#2a1410", "#e8613c"] },
+    { "id": "hel",        "name": "Hel",        "description": "Black, white and every grey between", "swatch": ["#000000", "#ffffff"] }
 ]

@@ -43,6 +43,7 @@ func testServer(t *testing.T) (*httptest.Server, *[]string) {
 	write(filepath.Join(brand, "brand.json"), `{"name":"Saga"}`)
 	write(filepath.Join(dir, "addons.json"), `{"addons":[{"url":"https://a.example/{{K}}/manifest.json"}]}`)
 	write(filepath.Join(dir, "secrets.env"), "K=s3cret\n")
+	write(filepath.Join(dir, "box.env"), "RUNE=algiz\n")
 
 	var nmcli []string
 	s := &server{
@@ -56,6 +57,7 @@ func testServer(t *testing.T) (*httptest.Server, *[]string) {
 		online:      NewOnline("http://127.0.0.1:1/unreachable"),
 		addonsPath:  filepath.Join(dir, "addons.json"),
 		secretsPath: filepath.Join(dir, "secrets.env"),
+		boxPath:     filepath.Join(dir, "box.env"),
 		version:     "test",
 	}
 	ts := httptest.NewServer(s.routes(web, themes, brand))
@@ -88,6 +90,7 @@ func TestRoutes(t *testing.T) {
 		{"/weebio/themes/saga.css", ":root", 200},
 		{"/weebio/brand/brand.json", `"Saga"`, 200},
 		{"/weebio/api/version", `"test"`, 200},
+		{"/weebio/api/box", `"rune":"algiz"`, 200},
 		{"/weebio/api/net", `"online":false,"state":"disconnected"`, 200},
 		{"/weebio/api/wifi/networks", `"ssid":"Home"`, 200},
 		{"/service-worker.js", "", 404},

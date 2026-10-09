@@ -5,7 +5,7 @@
 //	/weebio/setup         Wi-Fi setup page
 //	/weebio/themes/*.css  colour themes (+ themes.json)
 //	/weebio/brand/...     product name, logo and icon (shared with the stremio-web build)
-//	/weebio/api/...       net status, Wi-Fi, rendered addon list, version
+//	/weebio/api/...       net status, Wi-Fi, rendered addon list, version, box rune
 package main
 
 import (
@@ -32,6 +32,7 @@ type server struct {
 	online      *Online
 	addonsPath  string
 	secretsPath string
+	boxPath     string
 	version     string
 }
 
@@ -43,6 +44,7 @@ func main() {
 	brandDir := flag.String("brand", filepath.Join(root, "branding"), "brand.json + logo/icon directory")
 	addons := flag.String("addons", filepath.Join(root, "addons.json"), "addon list with {{KEY}} placeholders")
 	secrets := flag.String("secrets", "/etc/weebio/secrets.env", "KEY=value secrets file")
+	boxConfig := flag.String("box", "/etc/weebio/box.env", "box config file (RUNE=<name>)")
 	probe := flag.String("probe", "https://v3-cinemeta.strem.io/manifest.json", "URL that must be reachable to count as online")
 	flag.Parse()
 
@@ -53,6 +55,7 @@ func main() {
 		online:      NewOnline(*probe),
 		addonsPath:  *addons,
 		secretsPath: *secrets,
+		boxPath:     *boxConfig,
 		version:     strings.TrimSpace(string(version)),
 	}
 
@@ -83,6 +86,9 @@ func (s *server) routes(webDir, themesDir, brandDir string) http.Handler {
 
 	mux.HandleFunc("GET /weebio/api/version", func(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, map[string]string{"version": s.version})
+	})
+	mux.HandleFunc("GET /weebio/api/box", func(w http.ResponseWriter, r *http.Request) {
+		writeJSON(w, http.StatusOK, boxIdentity(s.boxPath))
 	})
 	mux.HandleFunc("GET /weebio/api/net", func(w http.ResponseWriter, r *http.Request) {
 		st := s.nm.State(r.Context())

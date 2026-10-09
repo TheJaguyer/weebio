@@ -1,0 +1,16 @@
+/* Vanaheim: the sea of Njord theme. Overrides the CSS variables stremio-web and the agent pages read. */
+:root[data-theme="vanaheim"] {
+    --primary-background-color: #06120f;
+    --secondary-background-color: #0e2a26;
+    --primary-foreground-color: rgba(255, 255, 255, 0.9);
+    --secondary-foreground-color: #06120f;
+    --primary-accent-color: #2bb3a3;
+    --secondary-accent-color: #4caf7d;
+    --tertiary-accent-color: #f2c14e;
+    --quaternary-accent-color: #3b6fb6;
+    --overlay-color: rgba(255, 255, 255, 0.05);
+    --modal-background-color: #0b1b18;
+    --outer-glow: 0px 0px 15px rgba(43, 179, 163, 0.37);
+    --warning-accent-color: rgba(255, 165, 0, 1);
+    --danger-accent-color: rgba(220, 38, 38, 1);
+}

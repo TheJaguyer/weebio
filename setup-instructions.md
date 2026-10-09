@@ -17,7 +17,7 @@ In **Raspberry Pi Imager**: Device **Raspberry Pi 5**, OS **Raspberry Pi OS Lite
 
 | Setting | Value |
 |---|---|
-| Hostname | unique per box: `weebio-01`, `weebio-02`, … |
+| Hostname | the box's **rune name** (lowercase): `fehu`, `uruz`, `thurisaz`, … (see [Runes](#runes)) |
 | Username / password | your admin account (same on every box is fine) |
 | Wi-Fi | **your** network: only used during setup, removed before shipping (step 5) |
 | Locale / time zone | the friend's time zone |
@@ -28,7 +28,7 @@ In **Raspberry Pi Imager**: Device **Raspberry Pi 5**, OS **Raspberry Pi OS Lite
 Boot the Pi, wait a minute, then from your PC:
 
 ```sh
-ssh <you>@weebio-01.local
+ssh <you>@fehu.local
 ```
 
 On the Pi, set `VERSION` to the newest release on
@@ -43,9 +43,20 @@ The link uses the **release tag**, so the script always matches the release it i
 It installs packages, creates the locked `weebio` kiosk user, installs the release, and sets the box
 to boot into the kiosk. Every step is safe to re-run if something fails halfway.
 
-## 3. Add the secrets file
+## 3. Add the box's rune and secrets
 
-API keys for addons go here, never in the repo. Names must match the `{{KEY}}` placeholders in `addons.json`:
+The rune appears in the top-right corner of the app, so a friend can tell you which box they have
+("mine shows Fehu") and you know which hostname to SSH into. Use the same name as the hostname:
+
+```sh
+echo "RUNE=fehu" | sudo tee /etc/weebio/box.env >/dev/null
+```
+
+(If this file is missing, the box falls back to its hostname.)
+
+
+
+API keys for addons go in the secrets file, never in the repo. Names must match the `{{KEY}}` placeholders in `addons.json`:
 
 ```sh
 sudo tee /etc/weebio/secrets.env >/dev/null <<'EOF'
@@ -62,7 +73,8 @@ An addon whose key is missing is skipped (not installed broken).
 sudo reboot
 ```
 
-The TV should show the logo and spinner, then Stremio. Over SSH, confirm:
+The TV should show the logo and spinner, then Saga with the box's rune in the top-right corner.
+Over SSH, confirm:
 
 ```sh
 systemctl is-active weebio-agent weebio-kiosk     # both: active
@@ -81,7 +93,7 @@ nmcli -t -f NAME,TYPE con show                      # find your Wi-Fi connection
 sudo systemd-run --on-active=10s systemctl poweroff && sudo nmcli con delete "<that name>"
 ```
 
-The box powers off ~10 seconds later. Label it with its hostname and record it below.
+The box powers off ~10 seconds later. Label it with its rune and record it below.
 
 At the friend's house: plug in power + HDMI. Within a few seconds of booting, the box shows the
 Wi-Fi setup page; once they pick their network and enter the password, it goes straight into Stremio.
@@ -112,17 +124,34 @@ journalctl -b -t kanshi --no-pager | tail                    # display resolutio
   `sudo systemctl set-environment WEEBIO_URL=http://127.0.0.1:8090/weebio/setup && sudo systemctl restart weebio-kiosk`
   (undo with `sudo systemctl unset-environment WEEBIO_URL && sudo systemctl restart weebio-kiosk`).
 
+## Runes
+
+The 24 runes of the Elder Futhark; use each name once (as hostname and `RUNE=`). The app draws the glyph.
+
+| Rune | Name | Rune | Name | Rune | Name |
+|---|---|---|---|---|---|
+| ᚠ | fehu | ᚺ | hagalaz | ᛏ | tiwaz |
+| ᚢ | uruz | ᚾ | naudiz | ᛒ | berkano |
+| ᚦ | thurisaz | ᛁ | isa | ᛖ | ehwaz |
+| ᚨ | ansuz | ᛃ | jera | ᛗ | mannaz |
+| ᚱ | raidho | ᛇ | eihwaz | ᛚ | laguz |
+| ᚲ | kenaz | ᛈ | perthro | ᛜ | ingwaz |
+| ᚷ | gebo | ᛉ | algiz | ᛞ | dagaz |
+| ᚹ | wunjo | ᛊ | sowilo | ᛟ | othala |
+
+(ᛊ sowilo is also Saga's logo, so it's best kept off the boxes to avoid confusion.)
+
 ## Box log
 
-| Box | Hostname | Friend | Version | Shipped |
-|---|---|---|---|---|
-| 1 | weebio-01 | | | |
-| 2 | weebio-02 | | | |
-| 3 | weebio-03 | | | |
-| 4 | weebio-04 | | | |
-| 5 | weebio-05 | | | |
-| 6 | weebio-06 | | | |
-| 7 | weebio-07 | | | |
-| 8 | weebio-08 | | | |
-| 9 | weebio-09 | | | |
-| 10 | weebio-10 | | | |
+| Rune / hostname | Friend | Version | Shipped |
+|---|---|---|---|
+| fehu | | | |
+| uruz | | | |
+| thurisaz | | | |
+| ansuz | | | |
+| raidho | | | |
+| kenaz | | | |
+| gebo | | | |
+| wunjo | | | |
+| hagalaz | | | |
+| naudiz | | | |
