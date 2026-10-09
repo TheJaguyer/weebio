@@ -5,7 +5,7 @@
     --primary-foreground-color: rgba(255, 255, 255, 0.9);
     --secondary-foreground-color: #0a0f14;
     --primary-accent-color: #6ec6e6;
-    --secondary-accent-color: #4caf7d;
+    --secondary-accent-color: var(--primary-accent-color); /* selections, progress, main buttons: one accent per theme */
     --tertiary-accent-color: #f2c14e;
     --quaternary-accent-color: #5b7bd6;
     --overlay-color: rgba(255, 255, 255, 0.05);

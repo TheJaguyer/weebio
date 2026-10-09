@@ -11,7 +11,7 @@
     --secondary-background-color: #141a2b;
     --primary-foreground-color: rgba(255, 255, 255, 0.9);
     --primary-accent-color: #d4a64a;
-    --secondary-accent-color: #4caf7d;
+    --secondary-accent-color: var(--primary-accent-color);
     --danger-accent-color: rgba(220, 38, 38, 1);
     --overlay-color: rgba(255, 255, 255, 0.05);
     --modal-background-color: #10141f;
