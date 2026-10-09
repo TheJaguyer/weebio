@@ -1,0 +1,27 @@
+[Unit]
+Description=Weebio kiosk (labwc + Stremio shell on the TV)
+Wants=weebio-agent.service
+After=weebio-agent.service systemd-user-sessions.service getty@tty1.service
+# Takes over the TV's console instead of a login prompt.
+Conflicts=getty@tty1.service
+
+[Service]
+User=weebio
+# A real logind session on seat0: gives the user the display, input devices and its PipeWire audio.
+PAMName=login
+TTYPath=/dev/tty1
+TTYReset=yes
+TTYVHangup=yes
+TTYVTDisallocate=yes
+StandardInput=tty-fail
+StandardOutput=journal
+StandardError=journal
+UtmpIdentifier=tty1
+UtmpMode=user
+Environment=XDG_SESSION_TYPE=wayland
+ExecStart=/usr/bin/labwc -s /opt/weebio/current/bin/weebio-session
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,9 @@
+#!/bin/sh
+# What labwc runs at startup (labwc -s does not use a shell, so the logic lives here).
+# Output goes to the journal: journalctl -t weebio-shell / -t kanshi
+here="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
+
+# 1080p on whatever screen connects, re-applied on every hotplug (TVs drop HDMI when switched away).
+systemd-cat -t kanshi kanshi -c "$here/share/kanshi/config" &
+
+exec systemd-cat -t weebio-shell "$here/bin/weebio"

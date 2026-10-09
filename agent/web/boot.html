@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Weebio</title>
+    <link rel="stylesheet" href="/weebio/weebio.css">
+    <script src="/weebio/common.js"></script>
+</head>
+<body>
+    <main class="center">
+        <img class="logo" src="/images/icon.png" alt="">
+        <div class="spinner"></div>
+        <p class="subtitle" id="status">Connecting to the internet…</p>
+    </main>
+    <script>
+        // Wait up to ~20 s for the network to come up after power-on, then open Stremio,
+        // or the Wi-Fi setup page if the box still isn't online.
+        (async () => {
+            const status = document.getElementById('status');
+            const deadline = Date.now() + 20000;
+            while (Date.now() < deadline) {
+                try {
+                    if ((await weebio.api('net')).online) {
+                        location.replace('/');
+                        return;
+                    }
+                } catch (_) { /* agent still starting: keep waiting */ }
+                if (Date.now() > deadline - 12000) status.textContent = 'Still looking for a connection…';
+                await weebio.sleep(1000);
+            }
+            location.replace('/weebio/setup');
+        })();
+    </script>
+</body>
+</html>

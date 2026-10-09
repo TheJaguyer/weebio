@@ -31,12 +31,24 @@ RUN --mount=type=cache,target=/root/.cargo/registry \
 # build.rs installs the GSettings schema into the *build* user's home; ship it in the bundle instead.
 RUN mkdir -p /schemas && cp data/com.stremio.Stremio.gschema.xml /schemas/ && glib-compile-schemas /schemas
 
+# ---- weebio-agent: pure Go, tested natively then cross-compiled for arm64 ----
+FROM --platform=$BUILDPLATFORM golang:1.24-bookworm AS agent
+WORKDIR /src
+COPY agent/ ./
+RUN --mount=type=cache,target=/root/.cache/go-build \
+    go vet ./... && go test ./... && \
+    CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -trimpath -ldflags="-s -w" -o /weebio-agent .
+
 # ---- assemble the bundle layout that lands in /opt/weebio/releases/<ver> ----
 FROM scratch AS bundle
 COPY --from=shell /stremio-linux-shell                     /bin/weebio-shell
 COPY --from=shell /src/data/server.js                      /lib/server.js
 COPY --from=shell /schemas/                                /share/glib-2.0/schemas/
 COPY box/weebio                                            /bin/weebio
+COPY box/weebio-session                                    /bin/weebio-session
+COPY --from=agent /weebio-agent                            /bin/weebio-agent
+COPY box/kanshi.conf                                       /share/kanshi/config
+COPY box/systemd/                                          /systemd/
 COPY --from=web   /src/build/                              /web/
 COPY themes/                                               /themes/
 COPY addons.json                                           /addons.json

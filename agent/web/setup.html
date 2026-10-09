@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Wi-Fi setup</title>
+    <link rel="stylesheet" href="/weebio/weebio.css">
+    <script src="/weebio/common.js"></script>
+</head>
+<body>
+    <!-- 1. Network list -->
+    <section class="panel" id="view-list">
+        <h1>Connect to Wi-Fi</h1>
+        <p class="subtitle" id="list-status">Looking for networks…</p>
+        <div class="list" id="networks"></div>
+        <div class="row">
+            <button id="continue" hidden>Continue to Stremio</button>
+            <button id="rescan">Scan again</button>
+        </div>
+    </section>
+
+    <!-- 2. Password entry with on-screen keyboard -->
+    <section class="panel" id="view-password" hidden>
+        <h1 id="password-title">Password</h1>
+        <div class="field" id="password-field"></div>
+        <div class="keyboard" id="keyboard"></div>
+        <p class="hint">Arrows to move · OK to type · Back to cancel</p>
+    </section>
+
+    <!-- 3. Connecting / checking -->
+    <section class="panel center" id="view-busy" hidden>
+        <div class="spinner"></div>
+        <p class="subtitle" id="busy-status">Connecting…</p>
+    </section>
+
+    <!-- 4. Error -->
+    <section class="panel center" id="view-error" hidden>
+        <h1>Couldn't connect</h1>
+        <p class="error" id="error-message"></p>
+        <div class="row">
+            <button id="error-retry">Try again</button>
+            <button id="error-back">Choose another network</button>
+        </div>
+    </section>
+
+    <script>
+        const $ = (id) => document.getElementById(id);
+        const views = ['list', 'password', 'busy', 'error'];
+        let selected = null;   // network being joined
+        let password = '';
+        let showPassword = false;
+
+        function show(view) {
+            for (const v of views) $(`view-${v}`).hidden = v !== view;
+            weebio.capturesBackspace = view === 'password';
+            weebio.onBack = { password: showList, error: showList }[view] || null;
+            setTimeout(() => {
+                const firstKey = view === 'password' ? $('keyboard').querySelector('button') : null;
+                firstKey ? firstKey.focus() : weebio.focusFirst();
+            }, 0);
+        }
+
+        // ---------- network list ----------
+        const lockIcon = '<svg class="lock" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 8V7a3 3 0 1 1 6 0v3H9z"/></svg>';
+
+        function bars(signal) {
+            const on = signal >= 75 ? 4 : signal >= 50 ? 3 : signal >= 25 ? 2 : 1;
+            return `<span class="bars">${[1, 2, 3, 4].map((i) => `<i class="${i <= on ? 'on' : ''}"></i>`).join('')}</span>`;
+        }
+
+        async function showList(rescan = false) {
+            show('list');
+            $('list-status').textContent = rescan ? 'Scanning…' : 'Looking for networks…';
+            try {
+                const [networks, net] = await Promise.all([
+                    weebio.api(`wifi/networks${rescan ? '?rescan=1' : ''}`),
+                    weebio.api('net').catch(() => ({ online: false })),
+                ]);
+                $('continue').hidden = !net.online;
+                const list = $('networks');
+                list.innerHTML = '';
+                for (const n of networks) {
+                    const b = document.createElement('button');
+                    b.className = 'network';
+                    b.innerHTML = `${bars(n.signal)}<span class="name"></span>${n.active ? '<span class="tag">Connected</span>' : ''}${n.secure ? lockIcon : ''}`;
+                    b.querySelector('.name').textContent = n.ssid;
+                    b.onclick = () => choose(n);
+                    list.appendChild(b);
+                }
+                $('list-status').textContent = networks.length ? 'Choose your network' : 'No networks found. Try scanning again.';
+            } catch (e) {
+                $('list-status').textContent = `Wi-Fi isn't available (${e.message}).`;
+            }
+            weebio.focusFirst();
+        }
+
+        function choose(network) {
+            selected = network;
+            if (!network.secure || network.active) {
+                connect('');
+                return;
+            }
+            password = '';
+            $('password-title').textContent = `Password for ${network.ssid}`;
+            renderField();
+            show('password');
+        }
+
+        // ---------- password + on-screen keyboard ----------
+        const layouts = {
+            lower: ['1234567890', 'qwertyuiop', 'asdfghjkl', 'zxcvbnm'],
+            upper: ['1234567890', 'QWERTYUIOP', 'ASDFGHJKL', 'ZXCVBNM'],
+            symbols: ['!@#$%^&*()', '-_=+[]{}\\|', ';:\'",.<>/?', '`~'],
+        };
+        let layout = 'lower';
+        let buttonsBefore = 0;
+
+        function renderField() {
+            const shown = showPassword ? password : '•'.repeat(password.length);
+            $('password-field').textContent = shown;
+            $('password-field').insertAdjacentHTML('beforeend', '<span class="caret"></span>');
+        }
+
+        function type(text) { password += text; renderField(); }
+
+        function key(label, onPress, cls = '') {
+            const b = document.createElement('button');
+            b.textContent = label;
+            if (cls) b.className = cls;
+            b.onclick = onPress;
+            return b;
+        }
+
+        function renderKeyboard() {
+            const kb = $('keyboard');
+            const focusedIndex = [...kb.querySelectorAll('button')].indexOf(document.activeElement);
+            kb.innerHTML = '';
+            for (const row of layouts[layout]) {
+                const r = document.createElement('div');
+                r.className = 'keys';
+                for (const ch of row) r.appendChild(key(ch, () => type(ch)));
+                kb.appendChild(r);
+            }
+            const controls = document.createElement('div');
+            controls.className = 'keys';
+            controls.append(
+                key(layout === 'upper' ? 'abc' : 'ABC', () => { layout = layout === 'upper' ? 'lower' : 'upper'; renderKeyboard(); }, 'wide'),
+                key(layout === 'symbols' ? 'abc' : '#+=', () => { layout = layout === 'symbols' ? 'lower' : 'symbols'; renderKeyboard(); }, 'wide'),
+                key('space', () => type(' '), 'space'),
+                key('⌫', () => { password = password.slice(0, -1); renderField(); }, 'wide'),
+                key(showPassword ? 'Hide' : 'Show', () => { showPassword = !showPassword; renderField(); renderKeyboard(); }, 'wide'),
+            );
+            const actions = document.createElement('div');
+            actions.className = 'keys';
+            actions.append(key('Cancel', showList, 'wide'), key('Connect', () => connect(password), 'wide primary'));
+            kb.append(controls, actions);
+            // Keep focus on the same key position after switching layouts (the control rows don't move).
+            if (focusedIndex >= 0) {
+                const buttons = [...kb.querySelectorAll('button')];
+                const CONTROLS = 7; // ABC, #+=, space, ⌫, Show, Cancel, Connect: same in every layout
+                const fromEnd = buttonsBefore - focusedIndex;
+                const index = fromEnd <= CONTROLS
+                    ? buttons.length - fromEnd                                   // same control key
+                    : Math.min(focusedIndex, buttons.length - CONTROLS - 1);     // a character key, clamped
+                (buttons[index] || buttons[0]).focus();
+            }
+            buttonsBefore = kb.querySelectorAll('button').length;
+        }
+
+        // A physical keyboard types directly.
+        document.addEventListener('keydown', (e) => {
+            if ($('view-password').hidden) return;
+            // Printable keys (including space, which would otherwise "click" the focused on-screen key).
+            if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) { e.preventDefault(); type(e.key); }
+            else if (e.key === 'Backspace') { e.preventDefault(); password = password.slice(0, -1); renderField(); }
+            // Escape is handled by common.js via weebio.onBack.
+        });
+
+        // ---------- connect ----------
+        async function connect(pass) {
+            show('busy');
+            $('busy-status').textContent = `Connecting to ${selected.ssid}…`;
+            try {
+                await weebio.api('wifi/connect', { method: 'POST', body: JSON.stringify({ ssid: selected.ssid, password: pass }) });
+                $('busy-status').textContent = 'Connected. Checking the internet…';
+                for (let i = 0; i < 20; i++) {
+                    if ((await weebio.api('net').catch(() => ({}))).online) {
+                        location.replace('/');
+                        return;
+                    }
+                    await weebio.sleep(1000);
+                }
+                fail(`Joined ${selected.ssid}, but the internet isn't reachable through it.`, false);
+            } catch (e) {
+                fail(e.code === 'wrong_password' ? 'That password was not accepted.' : e.message, e.code === 'wrong_password');
+            }
+        }
+
+        function fail(message, retryPassword) {
+            $('error-message').textContent = message;
+            $('error-retry').onclick = () => (retryPassword ? choose(selected) : connect(password));
+            show('error');
+        }
+
+        $('error-back').onclick = () => showList();
+        $('rescan').onclick = () => showList(true);
+        $('continue').onclick = () => location.replace('/');
+        renderKeyboard();
+        showList();
+    </script>
+</body>
+</html>

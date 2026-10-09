@@ -1,0 +1,15 @@
+[Unit]
+Description=Weebio agent (local UI server and Wi-Fi setup)
+Wants=NetworkManager.service
+After=NetworkManager.service
+
+[Service]
+# Root so it can drive NetworkManager (and, later, install updates). It only listens on 127.0.0.1.
+ExecStart=/opt/weebio/current/bin/weebio-agent
+Restart=always
+RestartSec=1
+ProtectHome=yes
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target

@@ -8,4 +8,6 @@ export GSK_RENDERER="${GSK_RENDERER:-ngl}"
 # Pi 5: zero-copy V4L2 decoding (HEVC in hardware; H.264 falls back to software automatically).
 export WEEBIO_HWDEC="${WEEBIO_HWDEC:-drm}"
 export WEEBIO_FULLSCREEN="${WEEBIO_FULLSCREEN:-1}"
-exec "$here/bin/weebio-shell" --no-window-decorations "$@"
+# The UI is served by weebio-agent; let it talk to the streaming server.
+export WEEBIO_NO_CORS=1
+exec "$here/bin/weebio-shell" --no-window-decorations --url "${WEEBIO_URL:-http://127.0.0.1:8090/weebio/boot}" "$@"
