@@ -1,0 +1,12 @@
+[Unit]
+Description=Weebio TV remote (HDMI-CEC playback device + Saga keymap)
+After=systemd-udevd.service
+Before=weebio-kiosk.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/opt/weebio/current/bin/weebio-cec
+
+[Install]
+WantedBy=multi-user.target

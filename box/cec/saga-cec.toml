@@ -1,0 +1,27 @@
+# TV remote buttons (HDMI-CEC "User Control" codes) -> keys Saga understands. Loaded by weebio-cec.
+# The kernel's stock map (rc-cec) sends KEY_OK / KEY_EXIT / KEY_PLAYCD, which a browser doesn't treat
+# as Enter / Escape / Space, so remote buttons would otherwise do nothing in the app.
+[[protocols]]
+name = "saga-cec"
+protocol = "cec"
+[protocols.scancodes]
+0x00 = "KEY_ENTER"      # Select / OK
+0x01 = "KEY_UP"
+0x02 = "KEY_DOWN"
+0x03 = "KEY_LEFT"
+0x04 = "KEY_RIGHT"
+0x0d = "KEY_ESC"        # Exit / Back
+0x2b = "KEY_ENTER"      # Enter
+0x20 = "KEY_0"          # 0: search
+0x21 = "KEY_1"          # 1-4: Board, Discover, Library, Settings
+0x22 = "KEY_2"
+0x23 = "KEY_3"
+0x24 = "KEY_4"
+0x44 = "KEY_SPACE"      # Play
+0x46 = "KEY_SPACE"      # Pause
+0x61 = "KEY_SPACE"      # Pause-Play function
+0x45 = "KEY_ESC"        # Stop: leave the player
+0x48 = "KEY_LEFT"       # Rewind: seek back
+0x49 = "KEY_RIGHT"      # Fast forward: seek forward
+0x4c = "KEY_LEFT"       # Backward
+0x4b = "KEY_RIGHT"      # Forward

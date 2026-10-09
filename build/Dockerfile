@@ -56,6 +56,8 @@ COPY --from=shell /src/data/server.js                      /lib/server.js
 COPY --from=shell /schemas/                                /share/glib-2.0/schemas/
 COPY box/weebio                                            /bin/weebio
 COPY box/weebio-session                                    /bin/weebio-session
+COPY box/weebio-cec                                        /bin/weebio-cec
+COPY box/cec/saga-cec.toml                                 /share/rc_keymaps/saga-cec.toml
 COPY --from=agent /weebio-agent                            /bin/weebio-agent
 COPY box/kanshi.conf                                       /share/kanshi/config
 COPY box/systemd/                                          /systemd/

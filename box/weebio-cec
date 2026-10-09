@@ -1,0 +1,25 @@
+#!/bin/sh
+# Make the TV remote control Saga over HDMI-CEC (run at boot by weebio-cec.service, as root):
+#  1. Join the CEC bus as a playback device, so the TV sends remote button presses to the box.
+#  2. Load Saga's keymap onto the CEC remote input device (OK -> Enter, Back -> Escape, ...).
+# The kernel keeps both across TV input switches and HDMI re-plugs.
+here="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
+keymap="$here/share/rc_keymaps/saga-cec.toml"
+
+# The CEC adapters appear shortly after boot; wait up to ~15 s for at least one.
+for _ in $(seq 30); do
+    ls /dev/cec* >/dev/null 2>&1 && break
+    sleep 0.5
+done
+
+for dev in /dev/cec*; do
+    [ -e "$dev" ] || continue
+    cec-ctl -d "$dev" --playback --osd-name Saga >/dev/null && echo "registered $dev as playback device 'Saga'"
+done
+
+# Each CEC adapter also creates a remote-control device (/sys/class/rc/rcN) speaking the "cec" protocol.
+for rc in /sys/class/rc/rc*; do
+    [ -e "$rc/protocols" ] || continue
+    grep -qw cec "$rc/protocols" || continue
+    ir-keytable -s "$(basename "$rc")" -c -w "$keymap" >/dev/null && echo "loaded Saga remote keymap on $(basename "$rc")"
+done

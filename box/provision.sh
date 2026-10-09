@@ -16,6 +16,7 @@ sudo apt-get install -y \
     labwc kanshi \
     pipewire pipewire-pulse wireplumber \
     network-manager \
+    v4l-utils ir-keytable \
     zstd curl
 
 echo "== kiosk user (no password: it can't log in, it only runs the TV session)"
@@ -54,8 +55,11 @@ sudo chmod 0755 /usr/local/sbin/weebio-install
 echo "== first release"
 sudo /usr/local/sbin/weebio-install "$VERSION"
 
+echo "== TV remote (HDMI-CEC): Saga's keymap for the CEC remote device, also when udev (re)adds it"
+sudo sed -i -E 's|^(\*[[:space:]]+rc-cec[[:space:]]+).*$|\1/opt/weebio/current/share/rc_keymaps/saga-cec.toml|' /etc/rc_maps.cfg
+
 echo "== boot into the kiosk"
-sudo systemctl enable weebio-agent.service weebio-kiosk.service
+sudo systemctl enable weebio-agent.service weebio-cec.service weebio-kiosk.service
 sudo systemctl set-default multi-user.target
 
 echo
