@@ -17,6 +17,10 @@
         const brand = await (await fetch('/weebio/brand/brand.json')).json();
         const fill = () => {
             for (const el of document.querySelectorAll('[data-brand-name]')) el.textContent = brand.name;
+            // Inline SVG (not <img>) so the mark takes the theme's colours, like in the app.
+            for (const el of document.querySelectorAll('[data-brand-svg]')) {
+                fetch(`/weebio/brand/${el.dataset.brandSvg}.svg`).then((r) => r.text()).then((svg) => { el.innerHTML = svg; });
+            }
             document.title = document.title ? `${document.title} · ${brand.name}` : brand.name;
         };
         document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', fill) : fill();

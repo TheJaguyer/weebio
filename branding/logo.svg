@@ -1,14 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 670 195">
   <!-- Placeholder Saga wordmark (rune + name). Replace with real art. -->
   <defs>
-    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+    <linearGradient id="saga-gold-logo" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#f6dc8c"/>
       <stop offset="0.55" stop-color="#d4a64a"/>
       <stop offset="1" stop-color="#9c6b1f"/>
     </linearGradient>
   </defs>
-  <path d="M118 28 L58 98 L124 111 L68 167" fill="none" stroke="url(#gold)"
+  <path d="M118 28 L58 98 L124 111 L68 167" fill="none" stroke="url(#saga-gold-logo)"
         stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>
   <text x="190" y="138" font-family="DejaVu Serif, serif" font-size="128" font-weight="bold"
-        letter-spacing="6" fill="url(#gold)">Saga</text>
+        letter-spacing="6" fill="url(#saga-gold-logo)">Saga</text>
 </svg>

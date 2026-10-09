@@ -50,3 +50,17 @@ func TestNetworkManagerState(t *testing.T) {
 		t.Fatalf("got %+v", st)
 	}
 }
+
+func TestParseVia(t *testing.T) {
+	for out, want := range map[string]string{
+		"ethernet:connected\nwifi:connected\nloopback:connected (externally)\n":    "ethernet",
+		"wifi:connected\nethernet:unavailable\n":                                   "wifi",
+		"wifi:connected\nethernet:connected\n":                                     "ethernet",
+		"wifi:disconnected\nethernet:unavailable\nloopback:connected (externally)": "",
+		"": "",
+	} {
+		if got := parseVia(out); got != want {
+			t.Errorf("parseVia(%q) = %q, want %q", out, got, want)
+		}
+	}
+}

@@ -12,6 +12,7 @@ import (
 type NMState struct {
 	State     string `json:"state"`
 	SavedWifi int    `json:"savedWifi"` // saved Wi-Fi profiles NetworkManager could try
+	Via       string `json:"via"`       // "ethernet", "wifi" or "" — how the box is connected
 }
 
 // parseGeneralState maps `nmcli -t -f STATE general` output to NMState.State.
@@ -41,6 +42,25 @@ func countWifiProfiles(out string) int {
 	return n
 }
 
+// parseVia picks the connection type from `nmcli -t -f TYPE,STATE device`, preferring a wired link
+// (NetworkManager routes over Ethernet first when both are up).
+func parseVia(out string) string {
+	via := ""
+	for _, line := range strings.Split(out, "\n") {
+		f := splitTerse(strings.TrimSpace(line))
+		if len(f) < 2 || f[1] != "connected" {
+			continue
+		}
+		switch f[0] {
+		case "ethernet":
+			return "ethernet"
+		case "wifi":
+			via = "wifi"
+		}
+	}
+	return via
+}
+
 // NetworkManager answers "what is NM doing right now", cached briefly since the boot page polls.
 type NetworkManager struct {
 	run runner
@@ -62,6 +82,9 @@ func (m *NetworkManager) State(ctx context.Context) NMState {
 	}
 	if out, err := m.run(ctx, "nmcli", "-t", "-f", "TYPE", "connection", "show"); err == nil {
 		st.SavedWifi = countWifiProfiles(string(out))
+	}
+	if out, err := m.run(ctx, "nmcli", "-t", "-f", "TYPE,STATE", "device"); err == nil {
+		st.Via = parseVia(string(out))
 	}
 	m.last, m.checked = st, time.Now()
 	return st

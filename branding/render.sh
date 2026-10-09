@@ -3,7 +3,8 @@
 #   render.sh <branding-dir> <out-dir>
 # Produces:
 #   <out>/web/assets/images/*.png, <out>/web/assets/favicons/favicon.ico   (overrides stremio-web's art)
-#   <out>/brand/{brand.json,icon.png,logo.png}                             (served by weebio-agent)
+#   <out>/web/assets/images/saga_{icon,logo}.svg                           (inlined, theme-coloured)
+#   <out>/brand/{brand.json,icon.{png,svg},logo.{png,svg}}                 (served by weebio-agent)
 set -eu
 src="$1"; out="$2"
 img="$out/web/assets/images"; fav="$out/web/assets/favicons"; brand="$out/brand"
@@ -31,5 +32,9 @@ icon 16 "$out/f16.png"; icon 32 "$out/f32.png"; icon 48 "$out/f48.png"
 convert "$out/f16.png" "$out/f32.png" "$out/f48.png" "$fav/favicon.ico"
 rm -f "$out"/*.png
 
-cp "$src/brand.json" "$brand/"
+# SVG sources too: drawn inline in the UI so the mark takes the active theme's colours.
+cp "$src/icon.svg" "$img/saga_icon.svg"
+cp "$src/logo.svg" "$img/saga_logo.svg"
+
+cp "$src/brand.json" "$src/icon.svg" "$src/logo.svg" "$brand/"
 cp "$img/icon.png" "$img/logo.png" "$brand/"
