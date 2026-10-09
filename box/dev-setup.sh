@@ -57,7 +57,7 @@ cat > "$HOME/weebio-run.sh" <<'EOF'
 #!/bin/sh
 export LIBSEAT_BACKEND=seatd RUST_LOG=debug
 [ -n "${1:-}" ] && export WEEBIO_HWDEC="$1"
-echo "running $(cat /opt/weebio/current/VERSION) hwdec=${WEEBIO_HWDEC:-ui-default}; log: ~/weebio.log; stop with: pkill labwc"
+echo "running $(cat /opt/weebio/current/VERSION) hwdec=${WEEBIO_HWDEC:-launcher default (drm)}; log: ~/weebio.log; stop with: pkill labwc"
 exec labwc -s "$HOME/weebio-session.sh"
 EOF
 

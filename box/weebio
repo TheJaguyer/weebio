@@ -5,5 +5,7 @@ export SERVER_PATH="$here/lib/server.js"
 export GSETTINGS_SCHEMA_DIR="$here/share/glib-2.0/schemas"
 # GTK's default Vulkan renderer forces a GL->Vulkan copy of every video frame; GL is far cheaper on the Pi.
 export GSK_RENDERER="${GSK_RENDERER:-ngl}"
+# Pi 5: zero-copy V4L2 decoding (HEVC in hardware; H.264 falls back to software automatically).
+export WEEBIO_HWDEC="${WEEBIO_HWDEC:-drm}"
 export WEEBIO_FULLSCREEN="${WEEBIO_FULLSCREEN:-1}"
 exec "$here/bin/weebio-shell" --no-window-decorations "$@"
