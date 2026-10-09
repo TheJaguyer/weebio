@@ -9,6 +9,7 @@
 package main
 
 import (
+	"context"
 	"embed"
 	"encoding/json"
 	"errors"
@@ -60,6 +61,7 @@ func main() {
 	}
 
 	log.Printf("weebio-agent %s listening on %s (web=%s)", s.version, *listen, *webDir)
+	startCEC(context.Background()) // TV remote over HDMI-CEC: answer the TV like a streaming stick
 	srv := &http.Server{Addr: *listen, Handler: s.routes(*webDir, *themesDir, *brandDir), ReadHeaderTimeout: 10 * time.Second}
 	log.Fatal(srv.ListenAndServe())
 }
