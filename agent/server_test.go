@@ -30,6 +30,15 @@ func testServer(t *testing.T) (*httptest.Server, *[]string) {
 	}
 	write(filepath.Join(web, "index.html"), "<html>stremio</html>")
 	write(filepath.Join(web, "service-worker.js"), "self.skipWaiting()")
+	hashed := filepath.Join(web, "0123456789abcdef0123456789abcdef01234567", "scripts")
+	if err := os.MkdirAll(hashed, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	write(filepath.Join(hashed, "main.js"), "app()")
+	if err := os.MkdirAll(filepath.Join(web, "images"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	write(filepath.Join(web, "images", "logo.png"), "png")
 	write(filepath.Join(themes, "saga.css"), ":root{}")
 	write(filepath.Join(brand, "brand.json"), `{"name":"Saga"}`)
 	write(filepath.Join(dir, "addons.json"), `{"addons":[{"url":"https://a.example/{{K}}/manifest.json"}]}`)
@@ -134,5 +143,19 @@ func TestConnectRequiresHeader(t *testing.T) {
 	}
 	if last := (*nmcli)[len(*nmcli)-1]; !strings.Contains(last, "connect Home password pw") {
 		t.Fatalf("nmcli args %q", last)
+	}
+}
+
+func TestWebCaching(t *testing.T) {
+	ts, _ := testServer(t)
+	for path, want := range map[string]string{
+		"/":                "no-cache",
+		"/images/logo.png": "no-cache", // same name every release: must revalidate
+		"/0123456789abcdef0123456789abcdef01234567/scripts/main.js": "public, max-age=31536000, immutable",
+	} {
+		resp, _ := get(t, ts, path)
+		if got := resp.Header.Get("Cache-Control"); resp.StatusCode != 200 || got != want {
+			t.Errorf("GET %s: %d, Cache-Control %q; want 200, %q", path, resp.StatusCode, got, want)
+		}
 	}
 }

@@ -18,6 +18,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -172,11 +173,18 @@ func pageServer(pages fs.FS) http.Handler {
 	})
 }
 
-// webServer serves the stremio-web build: index.html is never cached, hashed assets are.
+// hashedAsset matches stremio-web's per-build asset directory (/<commit hash>/scripts/main.js etc.).
+var hashedAsset = regexp.MustCompile(`^/[0-9a-f]{40}/`)
+
+// webServer serves the stremio-web build. Files under the commit-hash directory change name with
+// every build, so they're cached forever. Everything else (index.html, images/, favicons, manifest)
+// keeps its name across releases and must be revalidated, or an update leaves old art on screen.
 func webServer(dir string) http.Handler {
 	files := http.FileServer(http.Dir(dir))
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/" || strings.HasSuffix(r.URL.Path, ".html") {
+		if hashedAsset.MatchString(r.URL.Path) {
+			w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+		} else {
 			w.Header().Set("Cache-Control", "no-cache")
 		}
 		files.ServeHTTP(w, r)
