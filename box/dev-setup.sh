@@ -18,7 +18,10 @@ sudo apt-get install -y \
 
 echo "== display + input access without a desktop login"
 sudo systemctl enable --now seatd
-sudo usermod -aG video,render,input,_seatd "$USER"
+groups="video,render,input"
+# Some seatd packages gate their socket on a _seatd group; Debian's uses video. Only add it if present.
+getent group _seatd >/dev/null && groups="$groups,_seatd"
+sudo usermod -aG "$groups" "$USER"
 
 echo "== audio (per-user PipeWire services)"
 systemctl --user enable --now pipewire pipewire-pulse wireplumber
