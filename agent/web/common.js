@@ -45,7 +45,7 @@ const weebio = {
 };
 
 // Arrow keys move focus to the nearest visible button in that direction; Enter activates it.
-// TV remotes (via HDMI-CEC) and gamepads (via the agent) both arrive here as plain key presses.
+// TV remotes (via HDMI-CEC) arrive here as plain key presses; gamepads are translated below.
 (function spatialNavigation() {
     const focusables = () => [...document.querySelectorAll('button:not([disabled])')]
         .filter((el) => el.offsetParent !== null);
@@ -95,4 +95,50 @@ const weebio = {
         if (!focusables().includes(document.activeElement)) focusables()[0]?.focus();
     }, 0));
     weebio.focusFirst = () => focusables()[0]?.focus();
+})();
+
+// Gamepads (Gamepad API): D-pad / left stick move, A presses, B goes back, X deletes and Y types a
+// space while a keyboard is on screen. Each is turned into the key press the page already handles.
+(function gamepadNavigation() {
+    if (typeof navigator.getGamepads !== 'function') return;
+    const BUTTONS = { 0: 'Enter', 1: 'Escape', 2: 'Backspace', 3: ' ', 12: 'ArrowUp', 13: 'ArrowDown', 14: 'ArrowLeft', 15: 'ArrowRight' };
+    const REPEAT_DELAY = 400;   // ms before a held direction starts repeating
+    const REPEAT_EVERY = 120;
+    const held = new Map();     // key -> time of the next repeat
+
+    function press(key) {
+        if (key === 'Enter') {
+            document.activeElement?.click?.();
+        } else if ((key === 'Backspace' || key === ' ') && !weebio.capturesBackspace) {
+            // X / Y only edit text; never let X act as "back".
+        } else {
+            document.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+        }
+    }
+
+    function poll() {
+        const now = performance.now();
+        const down = new Set();
+        for (const pad of navigator.getGamepads()) {
+            if (!pad) continue;
+            for (const [i, key] of Object.entries(BUTTONS)) if (pad.buttons[i]?.pressed) down.add(key);
+            const [x = 0, y = 0] = pad.axes;
+            if (x < -0.5) down.add('ArrowLeft');
+            if (x > 0.5) down.add('ArrowRight');
+            if (y < -0.5) down.add('ArrowUp');
+            if (y > 0.5) down.add('ArrowDown');
+        }
+        for (const key of down) {
+            if (!held.has(key)) {
+                held.set(key, now + REPEAT_DELAY);
+                press(key);
+            } else if (key.startsWith('Arrow') && now >= held.get(key)) {
+                held.set(key, now + REPEAT_EVERY);
+                press(key);
+            }
+        }
+        for (const key of [...held.keys()]) if (!down.has(key)) held.delete(key);
+        requestAnimationFrame(poll);
+    }
+    requestAnimationFrame(poll);
 })();
