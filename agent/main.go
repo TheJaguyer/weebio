@@ -26,6 +26,7 @@ var embedded embed.FS
 
 type server struct {
 	wifi        *Wifi
+	nm          *NetworkManager
 	online      *Online
 	addonsPath  string
 	secretsPath string
@@ -45,6 +46,7 @@ func main() {
 	version, _ := os.ReadFile(filepath.Join(root, "VERSION"))
 	s := &server{
 		wifi:        &Wifi{run: execRunner},
+		nm:          &NetworkManager{run: execRunner},
 		online:      NewOnline(*probe),
 		addonsPath:  *addons,
 		secretsPath: *secrets,
@@ -79,7 +81,14 @@ func (s *server) routes(webDir, themesDir string) http.Handler {
 		writeJSON(w, http.StatusOK, map[string]string{"version": s.version})
 	})
 	mux.HandleFunc("GET /weebio/api/net", func(w http.ResponseWriter, r *http.Request) {
-		writeJSON(w, http.StatusOK, map[string]bool{"online": s.online.Check(r.Context())})
+		st := s.nm.State(r.Context())
+		// With no network at all there's nothing to probe; answering at once lets the boot page
+		// move on to Wi-Fi setup instead of waiting out an HTTP timeout.
+		online := st.State != "disconnected" && s.online.Check(r.Context())
+		writeJSON(w, http.StatusOK, struct {
+			Online bool `json:"online"`
+			NMState
+		}{online, st})
 	})
 	mux.HandleFunc("GET /weebio/api/wifi/networks", func(w http.ResponseWriter, r *http.Request) {
 		networks, err := s.wifi.Networks(r.Context(), r.URL.Query().Get("rescan") == "1")

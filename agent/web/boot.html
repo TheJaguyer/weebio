@@ -14,22 +14,37 @@
         <p class="subtitle" id="status">Connecting to the internet…</p>
     </main>
     <script>
-        // Wait up to ~20 s for the network to come up after power-on, then open Stremio,
-        // or the Wi-Fi setup page if the box still isn't online.
+        // Open Stremio as soon as the box is online. Otherwise decide from what NetworkManager is
+        // doing how long it's worth waiting before showing Wi-Fi setup:
+        //   nothing saved to join      -> setup right away
+        //   saved Wi-Fi but idle       -> ~6 s (out of range, router off)
+        //   joined but no internet     -> ~12 s
+        //   actively connecting        -> up to 30 s
         (async () => {
             const status = document.getElementById('status');
-            const deadline = Date.now() + 20000;
-            while (Date.now() < deadline) {
+            const start = Date.now();
+            const giveUpAfter = (net) => {
+                if (net.state === 'disconnected') return net.savedWifi === 0 ? 1000 : 6000;
+                if (net.state === 'connected' || net.state === 'limited') return 12000;
+                return 30000; // connecting, or unknown
+            };
+            for (;;) {
+                let net = { online: false, state: 'unknown', savedWifi: 0 };
                 try {
-                    if ((await weebio.api('net')).online) {
-                        location.replace('/');
-                        return;
-                    }
+                    net = await weebio.api('net');
                 } catch (_) { /* agent still starting: keep waiting */ }
-                if (Date.now() > deadline - 12000) status.textContent = 'Still looking for a connection…';
+                if (net.online) {
+                    location.replace('/');
+                    return;
+                }
+                const waited = Date.now() - start;
+                if (waited >= giveUpAfter(net)) {
+                    location.replace('/weebio/setup');
+                    return;
+                }
+                if (waited > 5000) status.textContent = 'Still looking for a connection…';
                 await weebio.sleep(1000);
             }
-            location.replace('/weebio/setup');
         })();
     </script>
 </body>

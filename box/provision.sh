@@ -1,7 +1,8 @@
 #!/bin/sh
 # Turn a freshly imaged Raspberry Pi OS Lite (64-bit, trixie) into a Weebio box that boots straight
 # into Stremio (or Wi-Fi setup). Run from an SSH session as the admin user, then reboot:
-#   curl -fsSL https://raw.githubusercontent.com/<you>/weebio/<commit>/box/provision.sh | sh -s <you> <version>
+#   curl -fsSL https://raw.githubusercontent.com/<you>/weebio/v<version>/box/provision.sh | sh -s <you> <version>
+# (see setup-instructions.md for the full per-box procedure)
 set -eu
 
 REPO_OWNER="${1:?usage: provision.sh <github-user> <version>}"

@@ -39,6 +39,9 @@ func testServer(t *testing.T) (*httptest.Server, *[]string) {
 			nmcli = append(nmcli, strings.Join(args, " "))
 			return []byte("*:Home:70:WPA2\n"), nil
 		}},
+		nm: &NetworkManager{run: func(context.Context, string, ...string) ([]byte, error) {
+			return []byte("disconnected\n"), nil
+		}},
 		online:      NewOnline("http://127.0.0.1:1/unreachable"),
 		addonsPath:  filepath.Join(dir, "addons.json"),
 		secretsPath: filepath.Join(dir, "secrets.env"),
@@ -73,7 +76,7 @@ func TestRoutes(t *testing.T) {
 		{"/weebio/common.js", "spatialNavigation", 200},
 		{"/weebio/themes/default.css", ":root", 200},
 		{"/weebio/api/version", `"test"`, 200},
-		{"/weebio/api/net", `"online":false`, 200},
+		{"/weebio/api/net", `"online":false,"state":"disconnected"`, 200},
 		{"/weebio/api/wifi/networks", `"ssid":"Home"`, 200},
 		{"/service-worker.js", "", 404},
 	}
