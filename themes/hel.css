@@ -7,7 +7,7 @@
     --primary-accent-color: #858585;
     --secondary-accent-color: var(--primary-accent-color); /* selections, progress, main buttons: one accent per theme */
     --tertiary-accent-color: #d6d6d6;
-    --quaternary-accent-color: #5c5c5c;
+    --quaternary-accent-color: var(--primary-accent-color); /* selected filter chips */
     --overlay-color: rgba(255, 255, 255, 0.05);
     --modal-background-color: #0d0d0d;
     --outer-glow: 0px 0px 15px rgba(255, 255, 255, 0.37);
