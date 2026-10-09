@@ -81,7 +81,8 @@ func (s *server) routes(webDir, themesDir, brandDir string) http.Handler {
 	mux := http.NewServeMux()
 
 	mux.Handle("GET /weebio/", noCache(http.StripPrefix("/weebio/", pageServer(pages))))
-	mux.Handle("GET /weebio/themes/", http.StripPrefix("/weebio/themes/", http.FileServer(http.Dir(themesDir))))
+	// Same file names every release, so revalidate (a cached themes.json would hide new themes).
+	mux.Handle("GET /weebio/themes/", noCache(http.StripPrefix("/weebio/themes/", http.FileServer(http.Dir(themesDir)))))
 	mux.Handle("GET /weebio/brand/", noCache(http.StripPrefix("/weebio/brand/", http.FileServer(http.Dir(brandDir)))))
 
 	mux.HandleFunc("GET /weebio/api/version", func(w http.ResponseWriter, r *http.Request) {

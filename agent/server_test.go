@@ -152,8 +152,9 @@ func TestConnectRequiresHeader(t *testing.T) {
 func TestWebCaching(t *testing.T) {
 	ts, _ := testServer(t)
 	for path, want := range map[string]string{
-		"/":                "no-cache",
-		"/images/logo.png": "no-cache", // same name every release: must revalidate
+		"/":                       "no-cache",
+		"/weebio/themes/saga.css": "no-cache", // themes.json etc. keep their names across releases
+		"/images/logo.png":        "no-cache", // same name every release: must revalidate
 		"/0123456789abcdef0123456789abcdef01234567/scripts/main.js": "public, max-age=31536000, immutable",
 	} {
 		resp, _ := get(t, ts, path)
