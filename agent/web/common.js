@@ -127,6 +127,13 @@ const weebio = {
             if (x > 0.5) down.add('ArrowRight');
             if (y < -0.5) down.add('ArrowUp');
             if (y > 0.5) down.add('ArrowDown');
+            // Controllers without a standard mapping report the D-pad as a hat on axes 6/7.
+            if (pad.mapping !== 'standard' && pad.axes.length >= 8) {
+                if (pad.axes[6] < -0.5) down.add('ArrowLeft');
+                if (pad.axes[6] > 0.5) down.add('ArrowRight');
+                if (pad.axes[7] < -0.5) down.add('ArrowUp');
+                if (pad.axes[7] > 0.5) down.add('ArrowDown');
+            }
         }
         for (const key of down) {
             if (!held.has(key)) {

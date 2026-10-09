@@ -108,8 +108,9 @@
 
         // ---------- password + on-screen keyboard ----------
         const layouts = {
-            lower: ['1234567890', 'qwertyuiop', 'asdfghjkl', 'zxcvbnm'],
-            upper: ['1234567890', 'QWERTYUIOP', 'ASDFGHJKL', 'ZXCVBNM'],
+            // Every row is 10 keys, so the keys line up in columns for D-pad up/down.
+            lower: ['1234567890', 'qwertyuiop', 'asdfghjkl@', 'zxcvbnm.-_'],
+            upper: ['1234567890', 'QWERTYUIOP', 'ASDFGHJKL@', 'ZXCVBNM.-_'],
             symbols: ['!@#$%^&*()', '-_=+[]{}\\|', ';:\'",.<>/?', '`~'],
         };
         let layout = 'lower';
@@ -144,15 +145,15 @@
             const controls = document.createElement('div');
             controls.className = 'keys';
             controls.append(
-                key(layout === 'upper' ? 'abc' : 'ABC', () => { layout = layout === 'upper' ? 'lower' : 'upper'; renderKeyboard(); }, 'wide'),
-                key(layout === 'symbols' ? 'abc' : '#+=', () => { layout = layout === 'symbols' ? 'lower' : 'symbols'; renderKeyboard(); }, 'wide'),
-                key('space', () => type(' '), 'space'),
-                key('⌫', () => { password = password.slice(0, -1); renderField(); }, 'wide'),
-                key(showPassword ? 'Hide' : 'Show', () => { showPassword = !showPassword; renderField(); renderKeyboard(); }, 'wide'),
+                key(layout === 'upper' ? 'abc' : 'ABC', () => { layout = layout === 'upper' ? 'lower' : 'upper'; renderKeyboard(); }, 'span2'),
+                key(layout === 'symbols' ? 'abc' : '#+=', () => { layout = layout === 'symbols' ? 'lower' : 'symbols'; renderKeyboard(); }, 'span2'),
+                key('space', () => type(' '), 'span3'),
+                key('⌫', () => { password = password.slice(0, -1); renderField(); }),
+                key(showPassword ? 'Hide' : 'Show', () => { showPassword = !showPassword; renderField(); renderKeyboard(); }, 'span2'),
             );
             const actions = document.createElement('div');
             actions.className = 'keys';
-            actions.append(key('Cancel', showList, 'wide'), key('Connect', () => connect(password), 'wide primary'));
+            actions.append(key('Cancel', showList, 'span5'), key('Connect', () => connect(password), 'span5 primary'));
             kb.append(controls, actions);
             // Keep focus on the same key position after switching layouts (the control rows don't move).
             if (focusedIndex >= 0) {
