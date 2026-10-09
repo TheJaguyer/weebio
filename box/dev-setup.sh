@@ -12,7 +12,7 @@ sudo apt-get update
 sudo apt-get install -y \
     libgtk-4-1 libadwaita-1-0 libwebkitgtk-6.0-4 libmpv2 libepoxy0 \
     nodejs ffmpeg \
-    labwc seatd \
+    labwc seatd kanshi \
     pipewire pipewire-pulse wireplumber \
     zstd curl
 
@@ -45,9 +45,18 @@ cd / && rm -rf "\$tmp"
 echo "active: \$(cat /opt/weebio/current/VERSION)  shell: \$(sha256sum /opt/weebio/current/bin/weebio-shell | cut -c1-16)"
 EOF
 
+# Output profile: 1080p on whatever screen connects, re-applied on every hotplug (TV input switches).
+mkdir -p "$HOME/.config/kanshi"
+cat > "$HOME/.config/kanshi/config" <<'EOF'
+profile {
+    output * mode 1920x1080
+}
+EOF
+
 # What labwc runs (labwc -s does not use a shell, so the logic lives in a file).
 cat > "$HOME/weebio-session.sh" <<'EOF'
 #!/bin/sh
+kanshi > "$HOME/kanshi.log" 2>&1 &
 sleep 1
 exec /opt/weebio/current/bin/weebio > "$HOME/weebio.log" 2>&1
 EOF
