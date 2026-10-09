@@ -1,9 +1,9 @@
-/* Stremio's stock palette, mirroring upstream src/App/styles.less. Copy this file to make a new theme. */
-:root[data-theme="default"] {
+/* Alfheim: the classic violet theme. Overrides the CSS variables stremio-web and the agent pages read. */
+:root[data-theme="alfheim"] {
     --primary-background-color: rgba(12, 11, 17, 1);
     --secondary-background-color: rgba(26, 23, 62, 1);
     --primary-foreground-color: rgba(255, 255, 255, 0.9);
-    --secondary-foreground-color: rgb(12, 11, 17, 1);
+    --secondary-foreground-color: rgb(12, 11, 17);
     --primary-accent-color: rgb(123, 91, 245);
     --secondary-accent-color: rgba(34, 179, 101, 1);
     --tertiary-accent-color: rgba(246, 199, 0, 1);
@@ -11,4 +11,6 @@
     --overlay-color: rgba(255, 255, 255, 0.05);
     --modal-background-color: rgba(15, 13, 32, 1);
     --outer-glow: 0px 0px 15px rgba(123, 91, 245, 0.37);
+    --warning-accent-color: rgba(255, 165, 0, 1);
+    --danger-accent-color: rgba(220, 38, 38, 1);
 }

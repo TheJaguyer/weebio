@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Placeholder Saga mark: the Sowilo rune (ᛋ, Norse "S") in gold leaf. Replace with real art. -->
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f6dc8c"/>
+      <stop offset="0.55" stop-color="#d4a64a"/>
+      <stop offset="1" stop-color="#9c6b1f"/>
+    </linearGradient>
+  </defs>
+  <path d="M318 64 L170 236 L330 268 L194 448" fill="none" stroke="url(#gold)"
+        stroke-width="64" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

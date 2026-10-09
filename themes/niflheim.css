@@ -1,0 +1,16 @@
+/* Niflheim: ice and mist theme. Overrides the CSS variables stremio-web and the agent pages read. */
+:root[data-theme="niflheim"] {
+    --primary-background-color: #0a0f14;
+    --secondary-background-color: #13202b;
+    --primary-foreground-color: rgba(255, 255, 255, 0.9);
+    --secondary-foreground-color: #0a0f14;
+    --primary-accent-color: #6ec6e6;
+    --secondary-accent-color: #4caf7d;
+    --tertiary-accent-color: #f2c14e;
+    --quaternary-accent-color: #5b7bd6;
+    --overlay-color: rgba(255, 255, 255, 0.05);
+    --modal-background-color: #0e1720;
+    --outer-glow: 0px 0px 15px rgba(110, 198, 230, 0.37);
+    --warning-accent-color: rgba(255, 165, 0, 1);
+    --danger-accent-color: rgba(220, 38, 38, 1);
+}

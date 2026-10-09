@@ -17,7 +17,8 @@ func testServer(t *testing.T) (*httptest.Server, *[]string) {
 	dir := t.TempDir()
 	web := filepath.Join(dir, "web")
 	themes := filepath.Join(dir, "themes")
-	for _, d := range []string{web, themes} {
+	brand := filepath.Join(dir, "branding")
+	for _, d := range []string{web, themes, brand} {
 		if err := os.MkdirAll(d, 0o755); err != nil {
 			t.Fatal(err)
 		}
@@ -29,7 +30,8 @@ func testServer(t *testing.T) (*httptest.Server, *[]string) {
 	}
 	write(filepath.Join(web, "index.html"), "<html>stremio</html>")
 	write(filepath.Join(web, "service-worker.js"), "self.skipWaiting()")
-	write(filepath.Join(themes, "default.css"), ":root{}")
+	write(filepath.Join(themes, "saga.css"), ":root{}")
+	write(filepath.Join(brand, "brand.json"), `{"name":"Saga"}`)
 	write(filepath.Join(dir, "addons.json"), `{"addons":[{"url":"https://a.example/{{K}}/manifest.json"}]}`)
 	write(filepath.Join(dir, "secrets.env"), "K=s3cret\n")
 
@@ -47,7 +49,7 @@ func testServer(t *testing.T) (*httptest.Server, *[]string) {
 		secretsPath: filepath.Join(dir, "secrets.env"),
 		version:     "test",
 	}
-	ts := httptest.NewServer(s.routes(web, themes))
+	ts := httptest.NewServer(s.routes(web, themes, brand))
 	t.Cleanup(ts.Close)
 	return ts, &nmcli
 }
@@ -74,7 +76,8 @@ func TestRoutes(t *testing.T) {
 		{"/weebio/boot", "Connecting to the internet", 200},
 		{"/weebio/setup", "Connect to Wi-Fi", 200},
 		{"/weebio/common.js", "spatialNavigation", 200},
-		{"/weebio/themes/default.css", ":root", 200},
+		{"/weebio/themes/saga.css", ":root", 200},
+		{"/weebio/brand/brand.json", `"Saga"`, 200},
 		{"/weebio/api/version", `"test"`, 200},
 		{"/weebio/api/net", `"online":false,"state":"disconnected"`, 200},
 		{"/weebio/api/wifi/networks", `"ssid":"Home"`, 200},

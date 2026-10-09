@@ -3,7 +3,8 @@
 //	/                     the custom stremio-web build
 //	/weebio/boot          splash: waits for internet, then opens Stremio or Wi-Fi setup
 //	/weebio/setup         Wi-Fi setup page
-//	/weebio/themes/*.css  colour themes
+//	/weebio/themes/*.css  colour themes (+ themes.json)
+//	/weebio/brand/...     product name, logo and icon (shared with the stremio-web build)
 //	/weebio/api/...       net status, Wi-Fi, rendered addon list, version
 package main
 
@@ -38,6 +39,7 @@ func main() {
 	listen := flag.String("listen", "127.0.0.1:8090", "address to serve on (keep it on loopback)")
 	webDir := flag.String("web", filepath.Join(root, "web"), "stremio-web build directory")
 	themesDir := flag.String("themes", filepath.Join(root, "themes"), "theme CSS directory")
+	brandDir := flag.String("brand", filepath.Join(root, "branding"), "brand.json + logo/icon directory")
 	addons := flag.String("addons", filepath.Join(root, "addons.json"), "addon list with {{KEY}} placeholders")
 	secrets := flag.String("secrets", "/etc/weebio/secrets.env", "KEY=value secrets file")
 	probe := flag.String("probe", "https://v3-cinemeta.strem.io/manifest.json", "URL that must be reachable to count as online")
@@ -54,7 +56,7 @@ func main() {
 	}
 
 	log.Printf("weebio-agent %s listening on %s (web=%s)", s.version, *listen, *webDir)
-	srv := &http.Server{Addr: *listen, Handler: s.routes(*webDir, *themesDir), ReadHeaderTimeout: 10 * time.Second}
+	srv := &http.Server{Addr: *listen, Handler: s.routes(*webDir, *themesDir, *brandDir), ReadHeaderTimeout: 10 * time.Second}
 	log.Fatal(srv.ListenAndServe())
 }
 
@@ -70,12 +72,13 @@ func bundleRoot() string {
 	return filepath.Dir(filepath.Dir(exe))
 }
 
-func (s *server) routes(webDir, themesDir string) http.Handler {
+func (s *server) routes(webDir, themesDir, brandDir string) http.Handler {
 	pages, _ := fs.Sub(embedded, "web")
 	mux := http.NewServeMux()
 
 	mux.Handle("GET /weebio/", noCache(http.StripPrefix("/weebio/", pageServer(pages))))
 	mux.Handle("GET /weebio/themes/", http.StripPrefix("/weebio/themes/", http.FileServer(http.Dir(themesDir))))
+	mux.Handle("GET /weebio/brand/", noCache(http.StripPrefix("/weebio/brand/", http.FileServer(http.Dir(brandDir)))))
 
 	mux.HandleFunc("GET /weebio/api/version", func(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, map[string]string{"version": s.version})

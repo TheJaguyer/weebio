@@ -4,6 +4,13 @@
 
 ARG DEBIAN_SUITE=trixie
 
+# ---- branding: render branding/*.svg into every image size the apps need ----
+FROM --platform=$BUILDPLATFORM debian:${DEBIAN_SUITE} AS brand
+RUN apt-get update && apt-get install -y --no-install-recommends librsvg2-bin imagemagick fonts-dejavu-core \
+    && rm -rf /var/lib/apt/lists/*
+COPY branding/ /branding/
+RUN sh /branding/render.sh /branding /out
+
 # ---- stremio-web: architecture independent, so build natively (fast) ----
 FROM --platform=$BUILDPLATFORM node:22-bookworm AS web
 RUN corepack enable
@@ -11,6 +18,9 @@ WORKDIR /src
 ARG WEB_COMMIT
 ENV COMMIT_HASH=$WEB_COMMIT
 COPY upstream/stremio-web/ ./
+# Saga branding: name/colours/credits, and our art over Stremio's logos, icons and favicon.
+COPY branding/brand.json ./brand.json
+COPY --from=brand /out/web/assets/ ./assets/
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
     pnpm install --frozen-lockfile && pnpm run build
 
@@ -51,4 +61,6 @@ COPY box/kanshi.conf                                       /share/kanshi/config
 COPY box/systemd/                                          /systemd/
 COPY --from=web   /src/build/                              /web/
 COPY themes/                                               /themes/
+COPY --from=brand /out/brand/                              /branding/
+COPY LICENSE NOTICE.md                                     /
 COPY addons.json                                           /addons.json

@@ -1,0 +1,16 @@
+/* Muspelheim: ember and ash theme. Overrides the CSS variables stremio-web and the agent pages read. */
+:root[data-theme="muspelheim"] {
+    --primary-background-color: #120a09;
+    --secondary-background-color: #2a1410;
+    --primary-foreground-color: rgba(255, 255, 255, 0.9);
+    --secondary-foreground-color: #120a09;
+    --primary-accent-color: #e8613c;
+    --secondary-accent-color: #f2a541;
+    --tertiary-accent-color: #f2c14e;
+    --quaternary-accent-color: #3b6fb6;
+    --overlay-color: rgba(255, 255, 255, 0.05);
+    --modal-background-color: #1a0f0d;
+    --outer-glow: 0px 0px 15px rgba(232, 97, 60, 0.37);
+    --warning-accent-color: rgba(255, 165, 0, 1);
+    --danger-accent-color: rgba(220, 38, 38, 1);
+}

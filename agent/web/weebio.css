@@ -6,16 +6,16 @@
 }
 
 :root {
-    /* Fallbacks if no theme file loads: Stremio's stock palette. */
-    --primary-background-color: rgba(12, 11, 17, 1);
-    --secondary-background-color: rgba(26, 23, 62, 1);
+    /* Fallbacks if no theme file loads: the Saga palette (themes/saga.css). */
+    --primary-background-color: #0b0d14;
+    --secondary-background-color: #141a2b;
     --primary-foreground-color: rgba(255, 255, 255, 0.9);
-    --primary-accent-color: rgb(123, 91, 245);
-    --secondary-accent-color: rgba(34, 179, 101, 1);
+    --primary-accent-color: #d4a64a;
+    --secondary-accent-color: #4caf7d;
     --danger-accent-color: rgba(220, 38, 38, 1);
     --overlay-color: rgba(255, 255, 255, 0.05);
-    --modal-background-color: rgba(15, 13, 32, 1);
-    --outer-glow: 0px 0px 15px rgba(123, 91, 245, 0.37);
+    --modal-background-color: #10141f;
+    --outer-glow: 0px 0px 15px rgba(212, 166, 74, 0.37);
     --border-radius: 0.75rem;
     font-size: 22px;
 }

@@ -1,0 +1,16 @@
+/* Saga: gold leaf on midnight theme. Overrides the CSS variables stremio-web and the agent pages read. */
+:root[data-theme="saga"] {
+    --primary-background-color: #0b0d14;
+    --secondary-background-color: #141a2b;
+    --primary-foreground-color: rgba(255, 255, 255, 0.9);
+    --secondary-foreground-color: #0b0d14;
+    --primary-accent-color: #d4a64a;
+    --secondary-accent-color: #4caf7d;
+    --tertiary-accent-color: #f2c14e;
+    --quaternary-accent-color: #3b6fb6;
+    --overlay-color: rgba(255, 255, 255, 0.05);
+    --modal-background-color: #10141f;
+    --outer-glow: 0px 0px 15px rgba(212, 166, 74, 0.37);
+    --warning-accent-color: rgba(255, 165, 0, 1);
+    --danger-accent-color: rgba(220, 38, 38, 1);
+}

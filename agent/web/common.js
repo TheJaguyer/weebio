@@ -2,13 +2,25 @@
 
 // Same origin as stremio-web, so the theme picked in Settings applies here too.
 (function applyTheme() {
-    let theme = 'default';
+    let theme = 'saga';
     try { theme = localStorage.getItem('weebio.theme') || theme; } catch (_) {}
     document.documentElement.dataset.theme = theme;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = `/weebio/themes/${encodeURIComponent(theme)}.css`;
     document.head.appendChild(link);
+})();
+
+// Product name from the shared branding (same brand.json the stremio-web build uses).
+(async function applyBrand() {
+    try {
+        const brand = await (await fetch('/weebio/brand/brand.json')).json();
+        const fill = () => {
+            for (const el of document.querySelectorAll('[data-brand-name]')) el.textContent = brand.name;
+            document.title = document.title ? `${document.title} · ${brand.name}` : brand.name;
+        };
+        document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', fill) : fill();
+    } catch (_) { /* branding unavailable: pages still work */ }
 })();
 
 const weebio = {
