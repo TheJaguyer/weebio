@@ -63,14 +63,23 @@ const weebio = {
             return;
         }
         const from = centre(current);
+        // Buttons in line with the current one (same row for left/right, overlapping columns for up/down)
+        // win over anything diagonal, so e.g. Right from Cancel goes straight to Connect.
+        const inLine = (r) => dx !== 0
+            ? r.top < from.r.bottom - 1 && r.bottom > from.r.top + 1
+            : r.left < from.r.right - 1 && r.right > from.r.left + 1;
+        const ahead = items.filter((el) => {
+            if (el === current) return false;
+            const to = centre(el);
+            return (to.x - from.x) * dx + (to.y - from.y) * dy > 1;
+        });
+        const lined = ahead.filter((el) => inLine(el.getBoundingClientRect()));
         let best = null;
         let bestScore = Infinity;
-        for (const el of items) {
-            if (el === current) continue;
+        for (const el of lined.length > 0 ? lined : ahead) {
             const to = centre(el);
             const along = (to.x - from.x) * dx + (to.y - from.y) * dy;   // distance in the pressed direction
             const across = Math.abs((to.x - from.x) * dy) + Math.abs((to.y - from.y) * dx);
-            if (along <= 1) continue;
             const score = along + across * 2.5;                          // prefer staying in line
             if (score < bestScore) { bestScore = score; best = el; }
         }
